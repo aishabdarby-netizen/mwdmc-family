@@ -1,0 +1,534 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+<meta charset="UTF-8">\
+<meta name="viewport" content="width=device-width, initial-scale=1.0">\
+<title>MWDMC Chapter Portal</title>\
+\
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>\
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>\
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>\
+\
+<style>\
+  :root \{\
+    --primary: #1a3a5c;\
+    --primary-light: #2a5a8c;\
+    --accent: #c8922a;\
+    --bg: #f5f4f0;\
+    --white: #ffffff;\
+    --border: #d8d6ce;\
+    --text: #1a1a18;\
+    --text-muted: #5f5e5a;\
+    --success: #2d6e3e;\
+    --success-bg: #eaf3de;\
+    --danger: #a32d2d;\
+    --danger-bg: #fcebeb;\
+    --radius: 10px;\
+    --shadow: 0 1px 4px rgba(0,0,0,0.08);\
+  \}\
+\
+  * \{ box-sizing: border-box; margin: 0; padding: 0; \}\
+\
+  body \{\
+    font-family: Georgia, 'Times New Roman', serif;\
+    background: var(--bg);\
+    color: var(--text);\
+    min-height: 100vh;\
+  \}\
+\
+  header \{\
+    background: var(--primary);\
+    color: #fff;\
+    padding: 1rem 2rem;\
+    display: flex;\
+    align-items: center;\
+    justify-content: space-between;\
+    flex-wrap: wrap;\
+    gap: 12px;\
+  \}\
+  header h1 \{ font-size: 1.3rem; font-weight: bold; letter-spacing: 0.02em; \}\
+  header p \{ font-size: 0.85rem; opacity: 0.75; margin-top: 2px; \}\
+\
+  .header-right \{ display: flex; align-items: center; gap: 12px; \}\
+  #user-info \{ font-size: 0.85rem; opacity: 0.85; display: none; \}\
+\
+  .btn \{\
+    font-family: Georgia, serif;\
+    font-size: 0.85rem;\
+    padding: 8px 18px;\
+    border-radius: 6px;\
+    border: 1.5px solid rgba(255,255,255,0.4);\
+    background: transparent;\
+    color: #fff;\
+    cursor: pointer;\
+    transition: background 0.15s;\
+  \}\
+  .btn:hover \{ background: rgba(255,255,255,0.12); \}\
+  .btn-accent \{ background: var(--accent); border-color: var(--accent); color: #fff; \}\
+  .btn-accent:hover \{ background: #b07820; border-color: #b07820; \}\
+  .btn-sm \{ font-size: 0.8rem; padding: 5px 12px; \}\
+\
+  main \{ max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; \}\
+\
+  .alert \{ padding: 12px 16px; border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 0.9rem; display: none; \}\
+  .alert.success \{ background: var(--success-bg); color: var(--success); border-left: 3px solid var(--success); \}\
+  .alert.danger \{ background: var(--danger-bg); color: var(--danger); border-left: 3px solid var(--danger); \}\
+  .alert.show \{ display: block; \}\
+\
+  #login-panel \{\
+    background: var(--white);\
+    border: 1px solid var(--border);\
+    border-radius: var(--radius);\
+    padding: 2.5rem;\
+    max-width: 420px;\
+    margin: 0 auto;\
+    box-shadow: var(--shadow);\
+  \}\
+  #login-panel h2 \{ font-size: 1.35rem; color: var(--primary); margin-bottom: 0.4rem; \}\
+  #login-panel p.sub \{ font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.75rem; \}\
+\
+  label \{ display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; font-family: Arial, sans-serif; \}\
+  input[type=email], input[type=password], input[type=text], textarea, select \{\
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px;\
+    font-size: 0.95rem; font-family: Arial, sans-serif; color: var(--text); background: var(--white);\
+    margin-bottom: 1rem; transition: border-color 0.15s;\
+  \}\
+  input:focus, textarea:focus, select:focus \{ outline: none; border-color: var(--primary-light); \}\
+  textarea \{ resize: vertical; min-height: 90px; \}\
+\
+  .btn-full \{\
+    width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none;\
+    border-radius: 6px; font-size: 0.95rem; font-family: Georgia, serif; cursor: pointer; transition: background 0.15s;\
+  \}\
+  .btn-full:hover \{ background: var(--primary-light); \}\
+\
+  .forgot-link \{ text-align: center; margin-top: 0.75rem; font-size: 0.82rem; \}\
+  .forgot-link a \{ color: var(--primary-light); cursor: pointer; text-decoration: underline; \}\
+\
+  #dashboard \{ display: none; \}\
+\
+  .chapter-badge \{\
+    display: inline-block; background: var(--accent); color: #fff; font-size: 0.8rem;\
+    padding: 3px 12px; border-radius: 20px; margin-bottom: 1.5rem; font-family: Arial, sans-serif;\
+  \}\
+\
+  .section-card \{ background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; overflow: hidden; box-shadow: var(--shadow); \}\
+  .section-header \{ background: var(--primary); color: #fff; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: space-between; \}\
+  .section-header h3 \{ font-size: 1rem; font-weight: bold; \}\
+  .section-body \{ padding: 1.25rem; \}\
+\
+  .field-grid \{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem; \}\
+  @media (max-width: 600px) \{ .field-grid \{ grid-template-columns: 1fr; \} \}\
+  .field-full \{ grid-column: 1 / -1; \}\
+  .last-saved \{ font-size: 0.78rem; color: var(--text-muted); font-family: Arial, sans-serif; margin-top: 0.5rem; \}\
+\
+  #public-view \{ display: none; \}\
+  .chapters-grid \{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.25rem; \}\
+  .chapter-card \{ background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); \}\
+  .chapter-card h3 \{ color: var(--primary); font-size: 1.05rem; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 0.75rem; \}\
+  .chapter-card dl \{ font-size: 0.875rem; line-height: 1.6; \}\
+  .chapter-card dt \{ font-weight: bold; color: var(--text-muted); font-family: Arial, sans-serif; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 8px; \}\
+  .chapter-card dd \{ color: var(--text); margin-left: 0; white-space: pre-wrap; \}\
+\
+  .page-tabs \{ display: flex; gap: 8px; margin-bottom: 1.5rem; border-bottom: 1.5px solid var(--border); padding-bottom: 0; \}\
+  .tab-btn \{ font-family: Arial, sans-serif; font-size: 0.875rem; padding: 8px 16px; background: none; border: none; border-bottom: 2.5px solid transparent; cursor: pointer; color: var(--text-muted); margin-bottom: -1.5px; transition: color 0.15s, border-color 0.15s; \}\
+  .tab-btn.active \{ color: var(--primary); border-bottom-color: var(--primary); font-weight: bold; \}\
+\
+  #admin-section \{ display: none; \}\
+  .admin-note \{ background: #fffbea; border: 1px solid #e0c84a; border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 0.875rem; color: #5a4a00; margin-bottom: 1.5rem; font-family: Arial, sans-serif; \}\
+  .user-row \{ display: flex; align-items: center; justify-content: space-between; padding: 10px 1.25rem; border-bottom: 0.5px solid var(--border); font-size: 0.875rem; font-family: Arial, sans-serif; \}\
+  .user-row:last-child \{ border-bottom: none; \}\
+\
+  .spinner \{ display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; \}\
+  @keyframes spin \{ to \{ transform: rotate(360deg); \} \}\
+</style>\
+</head>\
+<body>\
+\
+<header>\
+  <div>\
+    <h1>MWDMC Family Reunion Portal</h1>\
+    <p>Chapter Information Management</p>\
+  </div>\
+  <div class="header-right">\
+    <span id="user-info"></span>\
+    <button class="btn" id="logout-btn" style="display:none" onclick="logout()">Sign out</button>\
+    <button class="btn btn-accent" id="login-header-btn" onclick="showLoginPanel()">Chapter login</button>\
+  </div>\
+</header>\
+\
+<main>\
+  <div id="alert-banner" class="alert"></div>\
+\
+  <div id="page-tabs" class="page-tabs" style="display:none">\
+    <button class="tab-btn active" onclick="switchTab('public')">All Chapters</button>\
+    <button class="tab-btn" onclick="switchTab('edit')" id="edit-tab">My Chapter</button>\
+    <button class="tab-btn" onclick="switchTab('admin')" id="admin-tab" style="display:none">Admin</button>\
+  </div>\
+\
+  <div id="login-panel">\
+    <h2>Chapter Login</h2>\
+    <p class="sub">Sign in to update your chapter's information for the reunion website.</p>\
+    <label for="login-email">Email address</label>\
+    <input type="email" id="login-email" placeholder="yourname@email.com" />\
+    <label for="login-password">Password</label>\
+    <input type="password" id="login-password" placeholder="\'95\'95\'95\'95\'95\'95\'95\'95" />\
+    <button class="btn-full" onclick="doLogin()">\
+      <span id="login-spinner" class="spinner" style="display:none"></span>\
+      Sign in\
+    </button>\
+    <div class="forgot-link"><a onclick="doPasswordReset()">Forgot password?</a></div>\
+  </div>\
+\
+  <div id="public-view">\
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:0.5rem; font-family:Arial,sans-serif;">\
+      Showing current chapter information submitted by representatives.\
+    </p>\
+    <div id="chapters-grid" class="chapters-grid"></div>\
+  </div>\
+\
+  <div id="dashboard">\
+    <div id="chapter-badge" class="chapter-badge"></div>\
+\
+    <div class="section-card">\
+      <div class="section-header">\
+        <h3>Chapter Contact & Leadership</h3>\
+        <button class="btn btn-sm" onclick="saveSection('contact')">Save</button>\
+      </div>\
+      <div class="section-body">\
+        <div class="field-grid">\
+          <div><label>Chapter Name</label><input type="text" id="chapterName" placeholder="e.g. Boston Chapter" /></div>\
+          <div><label>City / State</label><input type="text" id="location" placeholder="e.g. Boston, MA" /></div>\
+          <div><label>Chapter Rep Name</label><input type="text" id="repName" placeholder="Full name" /></div>\
+          <div><label>Rep Phone / Email</label><input type="text" id="repContact" placeholder="Phone or email" /></div>\
+          <div class="field-full"><label>Chapter President / Leader (optional)</label><input type="text" id="president" placeholder="Name and title" /></div>\
+        </div>\
+        <div class="last-saved" id="contact-saved"></div>\
+      </div>\
+    </div>\
+\
+    <div class="section-card">\
+      <div class="section-header">\
+        <h3>Reunion Attendance</h3>\
+        <button class="btn btn-sm" onclick="saveSection('attendance')">Save</button>\
+      </div>\
+      <div class="section-body">\
+        <div class="field-grid">\
+          <div><label>Expected # of Adults</label><input type="text" id="adults" placeholder="e.g. 12" /></div>\
+          <div><label>Expected # of Children</label><input type="text" id="children" placeholder="e.g. 5" /></div>\
+          <div><label>Dietary / Accessibility Needs</label><input type="text" id="dietary" placeholder="e.g. 2 vegetarian, 1 wheelchair" /></div>\
+          <div><label>T-Shirt Sizes (list counts)</label><input type="text" id="tshirts" placeholder="e.g. S\'d72, M\'d74, L\'d73, XL\'d72" /></div>\
+          <div class="field-full"><label>Special Guests / Announcements</label><textarea id="guests" placeholder="Any notable attendees, birthdays, anniversaries, etc."></textarea></div>\
+        </div>\
+        <div class="last-saved" id="attendance-saved"></div>\
+      </div>\
+    </div>\
+\
+    <div class="section-card">\
+      <div class="section-header">\
+        <h3>Chapter News & Updates</h3>\
+        <button class="btn btn-sm" onclick="saveSection('news')">Save</button>\
+      </div>\
+      <div class="section-body">\
+        <div class="field-grid">\
+          <div class="field-full"><label>Chapter News / Highlights (last year)</label><textarea id="news" placeholder="Births, graduations, milestones, achievements, memorials..."></textarea></div>\
+          <div class="field-full"><label>Message to the Family</label><textarea id="message" placeholder="A greeting or message from your chapter to the reunion..."></textarea></div>\
+        </div>\
+        <div class="last-saved" id="news-saved"></div>\
+      </div>\
+    </div>\
+  </div>\
+\
+  <div id="admin-section">\
+    <div class="admin-note">\
+      <strong>Admin view.</strong> All registered chapter representatives and their submitted data are shown below.\
+    </div>\
+    <div class="section-card">\
+      <div class="section-header"><h3>Registered Chapter Representatives</h3></div>\
+      <div id="admin-user-list"></div>\
+    </div>\
+    <div class="section-card" style="margin-top:1.25rem">\
+      <div class="section-header"><h3>All Chapter Data (summary)</h3></div>\
+      <div id="admin-data-list" style="padding:1.25rem; font-size:0.875rem; font-family:Arial,sans-serif;"></div>\
+    </div>\
+  </div>\
+\
+</main>\
+\
+<script>\
+const firebaseConfig = \{\
+  apiKey: "AIzaSyDhfLcz0eyCbViLR_X8FPHtf56iR7rLAUw",\
+  authDomain: "mwdmc-family.firebaseapp.com",\
+  projectId: "mwdmc-family",\
+  storageBucket: "mwdmc-family.firebasestorage.app",\
+  messagingSenderId: "220874652105",\
+  appId: "1:220874652105:web:60a61c8f69202e50421018"\
+\};\
+\
+const ADMIN_EMAIL = "mwdmcfamily@gmail.com";\
+\
+const LOCAL_CHAPTER_MAP = \{\
+  "mwdmcfamily@gmail.com":           "national",\
+  "MWDMC@gmail.com":                 "boston",\
+  "mwdmccincinnaticapter@gmail.com": "cincinnati",\
+  "dmv.mwdmc@gmail.com":             "dc-md-va",\
+  "atlmwdmc@gmail.com":              "atlanta",\
+  "blu66sky@gmail.com":              "statesboro",\
+  "newyorkmwdmcchapter@gmail.com":   "new-york",\
+  "Phillymwdmc@gmail.com":           "phillynj"\
+\};\
+\
+const CHAPTER_NAMES = \{\
+  "national":   "National",\
+  "boston":     "Boston",\
+  "cincinnati": "Cincinnati",\
+  "dc-md-va":   "DC / MD / VA",\
+  "atlanta":    "Atlanta, Georgia",\
+  "statesboro": "Statesboro, Georgia",\
+  "new-york":   "New York",\
+  "phillynj":   "PhillyNJ"\
+\};\
+\
+firebase.initializeApp(firebaseConfig);\
+const auth = firebase.auth();\
+const db   = firebase.firestore();\
+\
+let currentUser = null;\
+let currentChapterId = null;\
+let chapterMap = \{ ...LOCAL_CHAPTER_MAP \};\
+\
+auth.onAuthStateChanged(async user => \{\
+  if (user) \{\
+    currentUser = user;\
+    await loadChapterMap();\
+    currentChapterId = chapterMap[user.email] || null;\
+    showLoggedIn();\
+  \} else \{\
+    currentUser = null;\
+    currentChapterId = null;\
+    showLoggedOut();\
+  \}\
+  loadPublicView();\
+\});\
+\
+async function loadChapterMap() \{\
+  try \{\
+    const snap = await db.collection('config').doc('chapterMap').get();\
+    if (snap.exists) \{ chapterMap = \{ ...LOCAL_CHAPTER_MAP, ...snap.data() \}; \}\
+  \} catch(e) \{\}\
+\}\
+\
+async function doLogin() \{\
+  const email = document.getElementById('login-email').value.trim();\
+  const pass  = document.getElementById('login-password').value;\
+  if (!email || !pass) \{ showAlert('Please enter your email and password.', 'danger'); return; \}\
+  document.getElementById('login-spinner').style.display = 'inline-block';\
+  try \{\
+    await auth.signInWithEmailAndPassword(email, pass);\
+  \} catch(e) \{\
+    document.getElementById('login-spinner').style.display = 'none';\
+    showAlert('Sign-in failed: ' + friendlyAuthError(e.code), 'danger');\
+  \}\
+\}\
+\
+async function doPasswordReset() \{\
+  const email = document.getElementById('login-email').value.trim();\
+  if (!email) \{ showAlert('Enter your email address above first.', 'danger'); return; \}\
+  try \{\
+    await auth.sendPasswordResetEmail(email);\
+    showAlert('Password reset email sent. Check your inbox.', 'success');\
+  \} catch(e) \{\
+    showAlert('Could not send reset email: ' + friendlyAuthError(e.code), 'danger');\
+  \}\
+\}\
+\
+function logout() \{ auth.signOut(); \}\
+\
+function showLoggedIn() \{\
+  document.getElementById('login-panel').style.display      = 'none';\
+  document.getElementById('login-header-btn').style.display = 'none';\
+  document.getElementById('logout-btn').style.display       = 'inline-block';\
+  document.getElementById('user-info').style.display        = 'inline';\
+  document.getElementById('page-tabs').style.display        = 'flex';\
+\
+  const isAdmin = currentUser.email === ADMIN_EMAIL;\
+  const chapterName = CHAPTER_NAMES[currentChapterId] || currentChapterId || 'Unassigned';\
+  document.getElementById('user-info').textContent = isAdmin ? 'Admin' : (currentChapterId ? chapterName : 'No chapter assigned');\
+\
+  if (isAdmin) \{\
+    document.getElementById('admin-tab').style.display = 'inline-block';\
+    loadAdminView();\
+  \}\
+\
+  if (currentChapterId) \{\
+    document.getElementById('edit-tab').style.display = 'inline-block';\
+    document.getElementById('chapter-badge').textContent = '\uc0\u10022  ' + (CHAPTER_NAMES[currentChapterId] || currentChapterId);\
+    loadChapterData();\
+    switchTab('edit');\
+  \} else if (isAdmin) \{\
+    switchTab('admin');\
+  \} else \{\
+    switchTab('public');\
+    showAlert('Your account is not yet assigned to a chapter. Please contact the reunion administrator.', 'danger');\
+  \}\
+\}\
+\
+function showLoggedOut() \{\
+  document.getElementById('login-panel').style.display      = 'block';\
+  document.getElementById('login-header-btn').style.display = 'inline-block';\
+  document.getElementById('logout-btn').style.display       = 'none';\
+  document.getElementById('user-info').style.display        = 'none';\
+  document.getElementById('page-tabs').style.display        = 'none';\
+  document.getElementById('dashboard').style.display        = 'none';\
+  document.getElementById('public-view').style.display      = 'none';\
+  document.getElementById('admin-section').style.display    = 'none';\
+\}\
+\
+function showLoginPanel() \{ document.getElementById('login-panel').style.display = 'block'; \}\
+\
+function switchTab(tab) \{\
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));\
+  document.getElementById('dashboard').style.display     = 'none';\
+  document.getElementById('public-view').style.display   = 'none';\
+  document.getElementById('admin-section').style.display = 'none';\
+\
+  if (tab === 'edit') \{\
+    document.getElementById('dashboard').style.display = 'block';\
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');\
+  \} else if (tab === 'public') \{\
+    document.getElementById('public-view').style.display = 'block';\
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');\
+  \} else if (tab === 'admin') \{\
+    document.getElementById('admin-section').style.display = 'block';\
+    document.getElementById('admin-tab').classList.add('active');\
+  \}\
+\}\
+\
+async function loadChapterData() \{\
+  if (!currentChapterId) return;\
+  try \{\
+    const snap = await db.collection('chapters').doc(currentChapterId).get();\
+    if (snap.exists) \{\
+      const d = snap.data();\
+      ['chapterName','location','repName','repContact','president','adults','children','dietary','tshirts','guests','news','message'].forEach(f => \{\
+        const el = document.getElementById(f);\
+        if (el && d[f] !== undefined) el.value = d[f];\
+      \});\
+      if (d._lastSaved) \{\
+        const ts = new Date(d._lastSaved.toDate ? d._lastSaved.toDate() : d._lastSaved);\
+        ['contact','attendance','news'].forEach(s => \{\
+          const el = document.getElementById(s + '-saved');\
+          if (el) el.textContent = 'Last saved: ' + ts.toLocaleString();\
+        \});\
+      \}\
+    \}\
+  \} catch(e) \{ showAlert('Could not load chapter data: ' + e.message, 'danger'); \}\
+\}\
+\
+async function saveSection(section) \{\
+  if (!currentChapterId) \{ showAlert('No chapter assigned.', 'danger'); return; \}\
+  const fieldSets = \{\
+    contact:    ['chapterName','location','repName','repContact','president'],\
+    attendance: ['adults','children','dietary','tshirts','guests'],\
+    news:       ['news','message']\
+  \};\
+  const data = \{ _lastSaved: firebase.firestore.FieldValue.serverTimestamp() \};\
+  fieldSets[section].forEach(f => \{ const el = document.getElementById(f); if (el) data[f] = el.value.trim(); \});\
+  try \{\
+    await db.collection('chapters').doc(currentChapterId).set(data, \{ merge: true \});\
+    document.getElementById(section + '-saved').textContent = 'Saved at ' + new Date().toLocaleString() + ' \uc0\u10003 ';\
+    showAlert('Chapter information saved successfully.', 'success');\
+    loadPublicView();\
+  \} catch(e) \{ showAlert('Save failed: ' + e.message, 'danger'); \}\
+\}\
+\
+async function loadPublicView() \{\
+  const grid = document.getElementById('chapters-grid');\
+  if (!grid) return;\
+  grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;font-family:Arial,sans-serif">Loading chapters...</p>';\
+  try \{\
+    const snap = await db.collection('chapters').get();\
+    if (snap.empty) \{\
+      grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;font-family:Arial,sans-serif;grid-column:1/-1">No chapter information has been submitted yet.</p>';\
+      return;\
+    \}\
+    grid.innerHTML = '';\
+    snap.forEach(doc => \{\
+      const d = doc.data();\
+      const name = d.chapterName || CHAPTER_NAMES[doc.id] || doc.id;\
+      const card = document.createElement('div');\
+      card.className = 'chapter-card';\
+      card.innerHTML = `\
+        <h3>$\{esc(name)\}</h3>\
+        <dl>\
+          $\{d.location  ? `<dt>Location</dt><dd>$\{esc(d.location)\}</dd>` : ''\}\
+          $\{d.repName   ? `<dt>Chapter Rep</dt><dd>$\{esc(d.repName)\}</dd>` : ''\}\
+          $\{d.president ? `<dt>Leader</dt><dd>$\{esc(d.president)\}</dd>` : ''\}\
+          $\{(d.adults||d.children) ? `<dt>Expected Attendance</dt><dd>$\{esc(d.adults||'?')\} adults, $\{esc(d.children||'?')\} children</dd>` : ''\}\
+          $\{d.dietary   ? `<dt>Dietary / Access</dt><dd>$\{esc(d.dietary)\}</dd>` : ''\}\
+          $\{d.tshirts   ? `<dt>T-Shirt Sizes</dt><dd>$\{esc(d.tshirts)\}</dd>` : ''\}\
+          $\{d.guests    ? `<dt>Special Guests</dt><dd>$\{esc(d.guests)\}</dd>` : ''\}\
+          $\{d.news      ? `<dt>Chapter News</dt><dd>$\{esc(d.news)\}</dd>` : ''\}\
+          $\{d.message   ? `<dt>Message to the Family</dt><dd>$\{esc(d.message)\}</dd>` : ''\}\
+        </dl>`;\
+      grid.appendChild(card);\
+    \});\
+  \} catch(e) \{\
+    grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;font-family:Arial,sans-serif">Could not load chapter data. Please check your Firebase configuration.</p>';\
+  \}\
+\}\
+\
+async function loadAdminView() \{\
+  try \{\
+    const snap = await db.collection('chapters').get();\
+    const adminList = document.getElementById('admin-data-list');\
+    if (snap.empty) \{ adminList.innerHTML = '<p>No chapter data submitted yet.</p>'; \}\
+    else \{\
+      let html = '<table style="width:100%;border-collapse:collapse">';\
+      html += '<tr style="background:var(--bg)"><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Chapter</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Rep</th><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Attendance</th></tr>';\
+      snap.forEach(doc => \{\
+        const d = doc.data();\
+        html += `<tr><td style="padding:6px 8px;border-bottom:0.5px solid var(--border)">$\{esc(d.chapterName||CHAPTER_NAMES[doc.id]||doc.id)\}</td><td style="padding:6px 8px;border-bottom:0.5px solid var(--border)">$\{esc(d.repName||'\'97')\}</td><td style="padding:6px 8px;border-bottom:0.5px solid var(--border)">$\{esc(d.adults||'?')\} adults, $\{esc(d.children||'?')\} children</td></tr>`;\
+      \});\
+      html += '</table>';\
+      adminList.innerHTML = html;\
+    \}\
+    const entries = Object.entries(chapterMap);\
+    document.getElementById('admin-user-list').innerHTML = entries.length === 0\
+      ? '<div class="user-row">No assignments configured.</div>'\
+      : entries.map(([email, chap]) => `<div class="user-row"><span>$\{esc(email)\}</span><span style="color:var(--primary);font-weight:bold">$\{esc(CHAPTER_NAMES[chap]||chap)\}</span></div>`).join('');\
+  \} catch(e) \{ document.getElementById('admin-data-list').innerHTML = '<p>Error: ' + e.message + '</p>'; \}\
+\}\
+\
+function showAlert(msg, type) \{\
+  const el = document.getElementById('alert-banner');\
+  el.textContent = msg;\
+  el.className = 'alert ' + type + ' show';\
+  setTimeout(() => \{ el.className = 'alert'; \}, 5000);\
+\}\
+\
+function esc(s) \{\
+  if (!s) return '';\
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');\
+\}\
+\
+function friendlyAuthError(code) \{\
+  const map = \{\
+    'auth/user-not-found': 'No account found for that email.',\
+    'auth/wrong-password': 'Incorrect password.',\
+    'auth/invalid-email': 'Invalid email address.',\
+    'auth/too-many-requests': 'Too many attempts. Please try again later.',\
+    'auth/invalid-credential': 'Email or password is incorrect.',\
+  \};\
+  return map[code] || code;\
+\}\
+</script>\
+</body>\
+</html>}
